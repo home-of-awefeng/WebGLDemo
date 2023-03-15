@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL Demo 坐标系 投影</title>
+</head>
+<body>
+  <!--canvas标签创建一个宽高均为500像素，背景为蓝色的矩形画布-->
+  <canvas id="canvas" width="500" height="500" style="background-color: blue"></canvas>
+  
+  <!-- 顶点着色器源码 -->
+  <script id="vertexShader" type="x-shader/x-vertex">
+    //attribute声明vec4类型变量apos
+    attribute vec4 apos;
+    void main() {
+      //顶点坐标apos赋值给内置变量gl_Position
+      //逐顶点处理数据
+      gl_Position = apos;
+    }
+  
+  </script>
+  <!-- 片元着色器源码 -->
+  <script id="fragmentShader" type="x-shader/x-fragment">
+  
+    void main() {
+      // 逐片元处理数据，所有片元(像素)设置为红色
+      gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+    }
+  
+  </script>
+  
+  <script>
+    //通过getElementById()方法获取canvas画布
+    var canvas=document.getElementById('canvas');
+    //通过方法getContext()获取WebGL上下文
+    var gl = canvas.getContext('webgl');
+
+    //顶点着色器源码
+    var vertexShaderSource = document.getElementById( 'vertexShader' ).innerText;
+
+    //片元着色器源码
+    var fragShaderSource = document.getElementById( 'fragmentShader' ).innerText;
+
+    //初始化着色器
+    var program = initShader(gl,vertexShaderSource,fragShaderSource);
+    //获取顶点着色器的位置变量apos，即aposLocation指向apos变量。
+    var aposLocation = gl.getAttribLocation(program,'apos');
+
+    // 9个元素构建三个顶点的xyz坐标值
+    // 数组里9个元素，每间隔3个为一组，分别代表xyz轴上的坐标值
+    var data=new Float32Array([
+      0, 0.0, -0.5,//三角形顶点1坐标； 0.5 依然显示直角三角形；超出-1~1的范围会有部分被截掉；
+      0.0, 1.5, 0.0,//三角形顶点2坐标
+      0.5, 0.0, 0.0,//三角形顶点3坐标
+    ]);
+
+    //创建缓冲区对象
+    var buffer=gl.createBuffer();
+    //绑定缓冲区对象,激活buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    //顶点数组data数据传入缓冲区
+    gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
+    // 缓冲区中的数据按照一定的规律传递给位置变量apos，第2、5、6参数描述的就是如何取出
+    // 第二个参数表示每几个数据为一组，数组 data 数据每3个为一组坐标值
+    // 第五个参数表示间隔几个数据
+    // 第六个参数表示从哪个数据开始取出
+    gl.vertexAttribPointer(aposLocation, 3, gl.FLOAT, false, 0, 0);
+    //允许数据传递
+    gl.enableVertexAttribArray(aposLocation);
+
+    // 开始绘制图形，使用TRIANGLES模式，三点构成一个平面
+    // 第二个参数表示从第几个点开始绘制，1表示从第二个开始，第三个据说不能再填写4，最大只能有3个点，因为第一个点没有参与绘制
+    // 第三个参数表示是的绘制前几个点，两点确定一条直线
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    //声明初始化着色器函数
+    function initShader(gl,vertexShaderSource,fragmentShaderSource){
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(vertexShader,vertexShaderSource);
+        gl.shaderSource(fragmentShader,fragmentShaderSource);
+        gl.compileShader(vertexShader);
+        gl.compileShader(fragmentShader);
+        var program = gl.createProgram();
+        gl.attachShader(program,vertexShader);
+        gl.attachShader(program,fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+        return program;
+    }
+  </script>
+</body>
+</html>
