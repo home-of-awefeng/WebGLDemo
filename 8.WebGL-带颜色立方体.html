@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebGL Demo 顶点坐标和颜色数据使用一个缓冲区</title>
+  <title>WebGL Demo 带颜色的立方体</title>
 </head>
 <body>
   <!--canvas标签创建一个宽高均为500像素，背景为蓝色的矩形画布-->
-  <canvas id="canvas" width="500" height="500" style="background-color: gray"></canvas>
+  <canvas id="canvas" width="500" height="500" style="background-color: #efefef"></canvas>
   
   <!-- 顶点着色器源码 -->
   <script id="vertexShader" type="x-shader/x-vertex">
@@ -59,48 +59,57 @@
     var a_color = gl.getAttribLocation(program, 'a_color');
 
     /**
-    创建顶点位置数据数组data，存储6个顶点
-    创建顶点颜色数组colorData，存储6个顶点对应RGB颜色值
+     创建顶点位置数据数组data,Javascript中小数点前面的0可以省略
     **/
     var data=new Float32Array([
-      -0.5,0.5,
-      1,0,0,
-      0.5,0.5,
-      1,0,0,
-      0.5,-0.5,
-      1,0,0,
-
-      -0.5,0.5,
-      0,0,1,
-      0.5,-0.5,
-      0,0,1,
-      -0.5,-0.5,
-      0,0,1
+        .5,.5,.5,-.5,.5,.5,-.5,-.5,.5,.5,.5,.5,-.5,-.5,.5,.5,-.5,.5,      //面1
+        .5,.5,.5,.5,-.5,.5,.5,-.5,-.5,.5,.5,.5,.5,-.5,-.5,.5,.5,-.5,      //面2
+        .5,.5,.5,.5,.5,-.5,-.5,.5,-.5,.5,.5,.5,-.5,.5,-.5,-.5,.5,.5,      //面3
+        -.5,.5,.5,-.5,.5,-.5,-.5,-.5,-.5,-.5,.5,.5,-.5,-.5,-.5,-.5,-.5,.5,//面4
+        -.5,-.5,-.5,.5,-.5,-.5,.5,-.5,.5,-.5,-.5,-.5,.5,-.5,.5,-.5,-.5,.5,//面5
+        .5,-.5,-.5,-.5,-.5,-.5,-.5,.5,-.5,.5,-.5,-.5,-.5,.5,-.5,.5,.5,-.5 //面6
     ]);
-
     /**
-     创建缓冲区buffer，传入顶点位置数据data，顶点颜色数据
+     创建顶点颜色数组colorData
+    **/
+    // var colorData = new Float32Array([
+    //     1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0, //红色——面1
+    //     0,1,0, 0,1,0, 0,1,0, 0,1,0, 0,1,0, 0,1,0, //绿色——面2
+    //     0,0,1, 0,0,1, 0,0,1, 0,0,1, 0,0,1, 0,0,1, //蓝色——面3
+    //     1,1,0, 1,1,0, 1,1,0, 1,1,0, 1,1,0, 1,1,0, //黄色——面4
+    //     0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, //黑色——面5
+    //     1,1,1, 1,1,1, 1,1,1, 1,1,1, 1,1,1, 1,1,1 //白色——面6
+    // ]);
+    var colorData = new Float32Array([
+      1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0,      //红色——面1
+      .9,0,0, .9,0,0, .9,0,0, .9,0,0, .9,0,0, .9,0,0,//R=0.9——面2
+      .8,0,0, .8,0,0, .8,0,0, .8,0,0, .8,0,0, .8,0,0,//R=0.8——面3
+      1,1,0, 1,1,0, 1,1,0, 1,1,0, 1,1,0, 1,1,0,      //黄色——面4
+      0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0,      //黑色——面5
+      1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,0,0,      //R=1——面6
+    ]);
+    /**
+     创建缓冲区colorBuffer，传入顶点颜色数据colorData
+     **/
+    var colorBuffer=gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER,colorData,gl.STATIC_DRAW);
+    gl.vertexAttribPointer(a_color, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_color);
+    /**
+     创建缓冲区buffer，传入顶点位置数据data
      **/
     var buffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-
-    /**
-    4表示data数组一个元素占据的字节数
-    倒数第二个参数4*5表示每5个元素是一个选择单元
-    第2个参数2表示从5元素组成的一个选择单元中选择前2个作为顶点位置数据
-    **/
-    gl.vertexAttribPointer(aposLocation, 2, gl.FLOAT, false, 4 * 5, 0);
-    //最后一个参数4*2表示5元素组成的一个选择单元中偏移2个元素
-    //第2个参数3表示从5元素组成的一个选择单元中选择后三个作为顶点颜色数据
-    gl.vertexAttribPointer(a_color, 3, gl.FLOAT, false, 4 * 5, 4 * 2);
-
+    gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
+    gl.vertexAttribPointer(aposLocation,2,gl.FLOAT,false,0,0);
     gl.enableVertexAttribArray(aposLocation);
-    gl.enableVertexAttribArray(a_color);
+
+    /**执行绘制之前，一定要开启深度测试，以免颜色混乱**/
+    gl.enable(gl.DEPTH_TEST);
 
     /**执行绘制命令**/
-    // 开始绘制图形
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.drawArrays(gl.TRIANGLES, 0, 36);
 
     //声明初始化着色器函数
     function initShader(gl,vertexShaderSource,fragmentShaderSource){
