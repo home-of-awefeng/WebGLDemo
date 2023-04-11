@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL Demo 片元坐标 gl_FragColor</title>
+</head>
+<body>
+  <!--canvas标签创建一个宽高均为500像素，背景为蓝色的矩形画布-->
+  <canvas id="canvas" width="500" height="500" style="background-color: #efefef"></canvas>
+
+
+  <!-- 顶点着色器源码 -->
+  <script id="vertexShader" type="x-shader/x-vertex">
+    //attribute声明vec4类型变量apos
+    attribute vec4 apos;
+
+    void main() {
+      //给内置变量gl_PointSize赋值像素大小
+      gl_PointSize = 50.0;
+
+      gl_Position = apos;
+    }
+  </script>
+  <!-- 片元着色器源码 -->
+  <script id="fragmentShader" type="x-shader/x-fragment">
+    void main() {
+      // 根据片元的 x 坐标，来设置片元的像素值
+      if (gl_FragCoord.x < 100.0) {
+        gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+
+      } else if (gl_FragCoord.x <= 300.0) {
+        // canvas 画布上[0, 300]之间片元像素值设置 红色
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
+      } else if (gl_FragCoord.x <= 400.0) {
+        // canvas 画布上[300, 400]之间片元像素值设置 绿色
+        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+
+      } else {
+        // canvas 画布上[400, 500]之间片元像素值设置 黄色
+        gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+      }   
+
+      // 片元沿着 x 方向渐变
+      // gl_FragColor = vec4(gl_FragCoord.x / 500.0 * 1.0, 0.0, 0.0, 1.0);
+    }
+  </script>
+  <script>
+    //通过getElementById()方法获取canvas画布对象
+    var canvas= document.getElementById('canvas')
+    //通过方法getContext()获取WebGL上下文
+    var gl = canvas.getContext('webgl');
+
+    //顶点着色器源码
+    var vertexShaderSource = document.getElementById('vertexShader').innerText;
+    //片元着色器源码
+    var fragShaderSource = document.getElementById('fragmentShader').innerText;
+
+    var program = initShader(gl, vertexShaderSource, fragShaderSource);
+    //获取顶点着色器的位置变量apos，即aposLocation指向apos变量。
+    var aposLocation = gl.getAttribLocation(program,'apos');
+
+    //类型数组构造函数Float32Array创建顶点数组
+    var data=new Float32Array([
+      -0.6, -0.5, 0.0, 1.0,
+      0.0, 0.0, 0.0, 1.0,
+      0.5, 0.5, 0.0, 1.0,
+      0.9, 0.9, 0.0, 1.0
+    ]);
+
+    //创建缓冲区对象
+    var buffer=gl.createBuffer();
+    //绑定缓冲区对象,激活buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    //顶点数组data数据传入缓冲区
+    gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
+    //缓冲区中的数据按照一定的规律传递给位置变量apos
+    gl.vertexAttribPointer(aposLocation, 4, gl.FLOAT, false, 0, 0);
+    //允许数据传递
+    gl.enableVertexAttribArray(aposLocation);
+
+    //调用WebGL API绘制渲染方法drawArrays
+    gl.drawArrays(gl.POINTS, 0, 4);
+
+
+    //声明初始化着色器函数
+    function initShader(gl, vertexShaderSource, fragmentShaderSource){
+      //创建顶点着色器对象
+      var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+      //创建片元着色器对象
+      var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+      //引入顶点、片元着色器源代码
+      gl.shaderSource(vertexShader,vertexShaderSource);
+      gl.shaderSource(fragmentShader,fragmentShaderSource);
+      //编译顶点、片元着色器
+      gl.compileShader(vertexShader);
+      gl.compileShader(fragmentShader);
+
+      //创建程序对象program
+      var program = gl.createProgram();
+      //附着顶点着色器和片元着色器到program
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      //链接program
+      gl.linkProgram(program);
+      //使用program
+      gl.useProgram(program);
+      //返回程序program对象
+      return program;
+    }
+  </script>
+</body>
+</html>
