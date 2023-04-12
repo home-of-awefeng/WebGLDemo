@@ -18,6 +18,10 @@
   <script type="module">
     import * as THREE from 'three';
 
+    // width和height用来设置Three.js输出的Canvas画布尺寸(像素px)
+    const width = 800;
+    const height = 500;
+
     // 创建3D场景对象Scene
     const scene = new THREE.Scene();
 
@@ -36,6 +40,23 @@
     mesh.position.set(0, 10, 0);
 
     scene.add(mesh);
+
+    // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
+    const camera = new THREE.PerspectiveCamera(30, width / height, 1, 3000);
+    camera.position.set(200, 200, 500);
+
+    //相机观察目标指向Threejs 3D空间中某个位置
+    camera.lookAt(0, 0, 0);   // mesh.position
+
+    // 创建渲染器对象
+    const renderer = new THREE.WebGLRenderer();
+
+    //设置three.js渲染区域的尺寸(像素px)
+    renderer.setSize(width, height);
+
+    renderer.render(scene, camera); //执行渲染操作
+
+    document.body.appendChild(renderer.domElement);
 
   </script>
 </body>
