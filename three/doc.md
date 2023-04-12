@@ -7,10 +7,18 @@
 - 圆平面 CircleGeometry
 
 # 材质 Material
-- 网格基础材质 MeshBasicMaterial
-- 网格漫反射材质 MeshLambertMaterial
-- 网格高光材质 MeshPhongMaterial
-- 物理材质 MeshStandardMaterial/MeshPhysicalMaterial
-- 点材质
-- 线基础材质
-- 精灵材质
+- 不受光照影响
+  - 网格基础材质 MeshBasicMaterial
+- 受光照影响
+  - 网格漫反射材质 MeshLambertMaterial
+  - 网格高光材质 MeshPhongMaterial
+  - 物理材质 MeshStandardMaterial/MeshPhysicalMaterial
+- 点材质 PointsMaterial
+- 线基础材质 LineBasicMaterial
+- 精灵材质 SpriteMaterial
+
+# 光源 Light
+- 环境光 AmbientLight
+- 点光源 PointLight
+- 聚光灯光源 SpotLight
+- 平行光 DirectionalLight
