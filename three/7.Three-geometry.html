@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js Demo</title>
+  <style>
+    body {
+      overflow: hidden;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../node_modules/three/build/three.module.js",
+        "three/addons/": "../node_modules/three/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    class THREEDemo {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      scene;
+      camera;
+      renderer;
+      cameraPosition = [200, 200, 1400];
+      cameraLookAt = [0, 0, 0];
+      lightPosition = [120, 120, 100];
+
+      constructor() {
+        // 创建3D场景对象Scene
+        this.scene = new THREE.Scene();
+        this.addAxesHelper();
+        this.addMesh();
+        this.addLight();
+        this.addCamera();
+        this.render();
+        this.addCameraControl();
+
+        // onresize 事件会在窗口被调整大小时发生
+        window.onresize = function () {
+          // 重置渲染器输出画布canvas尺寸
+          this.renderer.setSize(this.width, this.height);
+          // 全屏情况下：设置观察范围长宽比aspect为窗口宽高比
+          this.camera.aspect = this.width / this.height;
+          // 渲染器执行render方法的时候会读取相机对象的投影矩阵属性projectionMatrix
+          // 但是不会每渲染一帧，就通过相机的属性计算投影矩阵(节约计算资源)
+          // 如果相机的一些属性发生了变化，需要执行updateProjectionMatrix ()方法更新相机的投影矩阵
+          this.camera.updateProjectionMatrix();
+        };
+      }
+
+      addAxesHelper() {
+        // AxesHelper：辅助观察的坐标系
+        const axesHelper = new THREE.AxesHelper(150);
+        this.scene.add(axesHelper);
+      }
+
+      addMesh() {
+        //BoxGeometry：长方体
+        const geometry1 = new THREE.BoxGeometry(100, 100, 100);
+        // SphereGeometry：球体
+        const geometry2 = new THREE.SphereGeometry(50);
+        // CylinderGeometry：圆柱
+        const geometry3 = new THREE.CylinderGeometry(50,50,100);
+        // PlaneGeometry：矩形平面
+        const geometry4 = new THREE.PlaneGeometry(100,50);
+        // CircleGeometry：圆形平面
+        const geometry5 = new THREE.CircleGeometry(50);
+
+        const geometries = [geometry1, geometry2, geometry3, geometry4, geometry5]; 
+
+        //创建一个半透明材质对象Material
+        // const material = new THREE.MeshLambertMaterial({
+        //   color: 0x00ffff, //设置材质颜色
+        //   transparent: false, //开启透明
+        //   opacity: 0.5, //设置透明度
+        //   // side: THREE.FrontSide, //默认只有正面可见
+        //   side: THREE.DoubleSide, //两面可见
+        // });
+
+        // 不受光照影响-网格基础材质
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x00ffff, //设置材质颜色
+            side: THREE.FrontSide, //默认只有正面可见
+            // side: THREE.DoubleSide, //两面可见
+        });
+
+        // for循环创建一列模型
+        for (let i = 0; i < 5; i++) {
+          // 两个参数分别为几何体geometry、材质material
+          const mesh = new THREE.Mesh(geometries[i], material);
+          //设置网格模型在三维空间中的位置坐标，默认是坐标原点
+          mesh.position.set(i * 120, 0, 0);
+          this.scene.add(mesh);
+        }
+      }
+
+      addLight() {
+        // 点光源
+        // const light = new THREE.PointLight(0xffffff, 1.0);
+        // light.position.set(100, 60, 50);
+        // // 改变点光源位置，使用OrbitControls辅助观察
+        // light.position.set(-400, -200, -300);
+
+        // 环境光
+        // const light = new THREE.AmbientLight(0xffffff, 0.7);
+
+        // 平行光
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(...this.lightPosition);
+        // 平行光辅助观察
+        const lightHelper = new THREE.DirectionalLightHelper(light, 5, 0xffffff);
+
+        this.scene.add(light);
+        this.scene.add(lightHelper);
+      }
+    
+      addCamera() {
+        // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
+        const camera = new THREE.PerspectiveCamera(30, this.width / this.height, 1, 3000);
+        camera.position.set(...this.cameraPosition);
+
+        //相机观察目标指向Threejs 3D空间中某个位置
+        camera.lookAt(...this.cameraLookAt);   // mesh.position
+        this.camera = camera;
+      }
+    
+      addCameraControl() {
+        // 设置相机控件轨道控制器OrbitControls
+        const controls = new OrbitControls(this.camera, this.renderer.domElement);
+        // 相机控件.target属性在OrbitControls.js内部表示相机目标观察点，默认0,0,0
+        controls.target.set(...this.cameraLookAt);
+        controls.update(); //update()函数内会执行camera.lookAt(controls.targe)
+
+        // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
+        controls.addEventListener('change', () => {
+          this.renderer.render(this.scene, this.camera);
+        });
+
+        controls.addEventListener('change', () => {
+          // 浏览器控制台查看相机位置变化
+          console.log('camera.position', this.camera.position);
+        });
+      }
+    
+      render() {
+        // 创建渲染器对象
+        this.renderer = new THREE.WebGLRenderer();
+        const clock = new THREE.Clock();
+        this.renderer.setSize(this.width, this.height);
+        document.body.appendChild(this.renderer.domElement);
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    const demo = new THREEDemo();
+  </script>
+</body>
+</html>
