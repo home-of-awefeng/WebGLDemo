@@ -101,6 +101,10 @@
           const mesh = new THREE.Mesh(geometries[i], material);
           //设置网格模型在三维空间中的位置坐标，默认是坐标原点
           mesh.position.set(i * 120, 0, 0);
+
+          console.log('几何体' + i, geometry);
+          console.log('顶点位置数据' + i, geometry.attributes.position);
+          console.log('顶点索引数据' + i, geometry.index);
           this.scene.add(mesh);
         }
       }
