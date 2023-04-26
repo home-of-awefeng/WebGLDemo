@@ -47,7 +47,7 @@
         this.addCameraControl();
 
         // onresize 事件会在窗口被调整大小时发生
-        window.onresize = function () {
+        window.onresize = () => {
           // 重置渲染器输出画布canvas尺寸
           this.renderer.setSize(this.width, this.height);
           // 全屏情况下：设置观察范围长宽比aspect为窗口宽高比
@@ -102,9 +102,9 @@
           //设置网格模型在三维空间中的位置坐标，默认是坐标原点
           mesh.position.set(i * 120, 0, 0);
 
-          console.log('几何体' + i, geometry);
-          console.log('顶点位置数据' + i, geometry.attributes.position);
-          console.log('顶点索引数据' + i, geometry.index);
+          console.log('几何体' + i, geometries[i]);
+          console.log('顶点位置数据' + i, geometries[i].attributes.position);
+          console.log('顶点索引数据' + i, geometries[i].index);
           this.scene.add(mesh);
         }
       }

@@ -1,12 +1,19 @@
 # 几何体 Geometry
 threejs 的长方体 BoxGeometry、球体 SphereGeometry 等几何体都是基于 BufferGeometry (opens new window) 类构建的，BufferGeometry 是一个没有任何形状的空几何体，可以通过 BufferGeometry 自定义任何几何形状，具体一点说就是定义顶点数据。
 
+## 分类
 - 长方体 BoxGeometry
 - 圆柱体 CyliderGeometry
 - 球体 SphereGeometry
 - 圆锥 ConeGeometry
 - 矩形平面 PlaneGeometry
 - 圆平面 CircleGeometry
+
+## 操作
+- 缩放 .scale()
+- 平移 .translate()
+- 旋转 .rotateX() .rotateY() .rotateZ()
+- 居中 .center()
 
 # 材质 Material
 - 不受光照影响
